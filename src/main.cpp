@@ -8,12 +8,13 @@
 
 int main()
 {
-  Scene test(800, 600, 120);
+  Scene test(800, 600, 90);
 
-  test.add_object(std::make_shared<Sphere>(Vector3(2, 2, -5), 1, RGBColor(255, 0, 0)));
-  test.add_object(std::make_shared<Sphere>(Vector3(-2, -2, -5), 2, RGBColor(0, 255, 0)));
-  test.add_object(std::make_shared<Plane>(Vector3(0, 1.5, 0), Vector3(0, 1, 0), RGBColor(0, 0, 255)));
-  test.add_object(std::make_shared<Plane>(Vector3(0, -2.5, 0), Vector3(0, -1, 0), RGBColor(128, 0, 255)));
+  test.add_object(std::make_shared<Sphere>(Vector3(0, 0, -5), 1, RGBColor(.2, 1, .2)));
+  test.add_object(std::make_shared<Sphere>(Vector3(-3, 1, -6), 2, RGBColor(.2, .2, 1)));
+  test.add_object(std::make_shared<Sphere>(Vector3(2, 2, -4), 1.5, RGBColor(1, .2, .2)));
+  test.add_object(std::make_shared<Plane>(Vector3(0, -2, 0), Vector3(0, -1, 0), RGBColor(.2, .2, .2)));
+  test.add_object(std::make_shared<Plane>(Vector3(0, 0, -20), Vector3(0, 0, -1), RGBColor(.6f, .8f, 1)));
 
   test.render();
 

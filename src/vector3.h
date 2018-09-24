@@ -18,6 +18,16 @@ struct Vector3
     return Vector3(x - a.x, y - a.y, z - a.z);
   }
 
+  inline Vector3 operator-() const
+  {
+    return Vector3(-x, -y, -z);
+  }
+
+  inline Vector3 operator*(float factor) const
+  {
+    return Vector3(x * factor, y * factor, z * factor);
+  }
+
   inline float dot(const Vector3 &a) const
   {
     return x * a.x + y * a.y + z * a.z;

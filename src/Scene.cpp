@@ -1,4 +1,6 @@
 #include "Scene.h"
+#include <math.h>
+#include <iostream>
 
 RGBColor &Scene::get_pixel(int x, int y)
 {
@@ -57,23 +59,16 @@ void Scene::save_image(const std::string &fileName)
   {
     const RGBColor pixel = pixels[i];
     unsigned char color[3] = {
-        pixel.b,
-        pixel.g,
-        pixel.r};
+        pixel.b * 255,
+        pixel.g * 255,
+        pixel.r * 255};
     fwrite(color, 1, 3, file);
   }
   fclose(file);
 };
 
-std::optional<std::tuple<float, std::shared_ptr<Object>>> Scene::trace(int x, int y)
+std::optional<Intersection> Scene::trace(const Ray &ray)
 {
-  auto fov_adjustment = tan(fov / 2);
-  auto aspect_ration = width / height;
-
-  auto sensor_x = ((x + 0.5) / width * 2 - 1) * aspect_ration * fov_adjustment;
-  auto sensor_y = (1 - ((y + 0.5) / height * 2)) * fov_adjustment;
-
-  Ray ray(sensor_x, sensor_y, -1);
   float minDist = 0;
   std::shared_ptr<Object> closestObject(nullptr);
   for (auto const &object : objects)
@@ -87,7 +82,7 @@ std::optional<std::tuple<float, std::shared_ptr<Object>>> Scene::trace(int x, in
   }
   if (closestObject)
   {
-    return std::make_tuple(minDist, closestObject);
+    return Intersection(minDist, closestObject);
   }
   return {};
 }
@@ -101,19 +96,36 @@ void Scene::render()
 
     auto pixel = &get_pixel(x, y);
 
-    auto result = trace(x, y);
-    if (result)
+    auto fov_adjustment = tan(fov / 2);
+    auto aspect_ration = (float)width / height;
+
+    auto sensor_x = ((x + 0.5) / width * 2 - 1) * aspect_ration * fov_adjustment;
+    auto sensor_y = ( ((y + 0.5) / height * 2) - 1) * fov_adjustment;
+
+    Ray ray(sensor_x, sensor_y, -1);
+
+    auto interseciton = trace(ray);
+    if (interseciton)
     {
-      auto object = std::get<1>(*result);
-      pixel->r = object->color.r;
-      pixel->g = object->color.g;
-      pixel->b = object->color.b;
+      auto hit_point = ray.origin + (ray.direction * interseciton->distance);
+      auto surface_normal = interseciton->element->surface_normal(hit_point);
+      auto direction_to_light = -light.direction;
+      auto light_power = std::max(surface_normal.dot(direction_to_light), 0.f) * light.intensity;
+      // std::cout << "power " << light_power << " normal " << surface_normal << std::endl;
+      auto light_reflected = 1 / 3.1415;
+
+      auto color = interseciton->element->color * light.color * light_power * light_reflected;
+      color.clamp();
+
+      pixel->r = color.r;
+      pixel->g = color.g;
+      pixel->b = color.b;
     }
     else
     {
-      pixel->r = 255;
-      pixel->g = 255;
-      pixel->b = 255;
+      pixel->r = 1;
+      pixel->g = 1;
+      pixel->b = 1;
     }
   }
 }

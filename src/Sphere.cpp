@@ -31,3 +31,10 @@ std::optional<float> Sphere::intersect(const Ray &ray)
 
   return t1;
 }
+
+Vector3 Sphere::surface_normal(const Vector3 &point)
+{
+  auto result = point - center;
+  result.normalize();
+  return result;
+}

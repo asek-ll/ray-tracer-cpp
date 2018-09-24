@@ -14,3 +14,8 @@ std::optional<float> Plane::intersect(const Ray &ray)
   }
   return {};
 }
+
+Vector3 Plane::surface_normal(const Vector3 &point)
+{
+  return -normal;
+}
